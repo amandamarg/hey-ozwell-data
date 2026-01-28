@@ -10,18 +10,18 @@ logger = logging.getLogger(__name__)
 
 def main():
     cmd = [
-        'python', 'download_drive_data.py.py',
+        'python', 'download_drive_data.py',
         '--data-dir', './data',
         '--delete-after-extract'
     ]
-    try:
-        logger.info(f"Running: {' '.join(cmd)}")
-        result = subprocess.run(cmd, cwd='../', check=True, capture_output=True, text=True)
-        logger.info("Command completed successfully")
-    except subprocess.CalledProcessError as e:
-        logger.error(f"Command failed: {e}")
-        logger.error(f"Error output: {e.stderr}")
-        return
+    # try:
+    #     logger.info(f"Running: {' '.join(cmd)}")
+    #     result = subprocess.run(cmd, cwd='./', check=True, capture_output=True, text=True)
+    #     logger.info("Command completed successfully")
+    # except subprocess.CalledProcessError as e:
+    #     logger.error(f"Command failed: {e}")
+    #     logger.error(f"Error output: {e.stderr}")
+    #     return
 
     cmd = [
         'python', 'download_eleven_labs.py',
@@ -33,7 +33,7 @@ def main():
     ]
     try:
         logger.info(f"Running: {' '.join(cmd)}")
-        result = subprocess.run(cmd, cwd='../', check=True, capture_output=True, text=True)
+        result = subprocess.run(cmd, cwd='./', check=True, capture_output=True, text=True)
         logger.info("Command completed successfully")
     except subprocess.CalledProcessError as e:
         logger.error(f"Command failed: {e}")

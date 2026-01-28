@@ -27,7 +27,7 @@ def main():
     zip_obj.extractall(data_dir.parent)
 
     if args.delete_after_extract:
-        shutil.rmtree(data_dir.parent / 'data.zip')
+        os.remove(data_dir.parent / 'data.zip')
 
     for phrase in ['hey-ozwell', "ozwell-i'm-done", 'go-ozwell', 'ozwell-go']:
         # restructure directory
