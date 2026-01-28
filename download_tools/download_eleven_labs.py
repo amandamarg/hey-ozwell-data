@@ -145,25 +145,22 @@ def main():
             manifests[phrase] = {'train': {'positive_samples': [], 'negative_samples': []}, 'test': {'positive_samples': [], 'negative_samples': []}}
 
     for (phrase, sample_type), group in df.groupby(['phrase', 'sample_type']):
-        if sample_type == 'negative':
-            train = group.sample(frac=args.split_factor, replace=False).get(['text', 'augmented', 'voice', 'zip_path', 'src_dir_path']).copy()
-            path = os.path.join(data_dir, phrase, 'train', sample_type)
-            os.makedirs(path, exist_ok=True)
-            if len(manifests[phrase]['train'][f'{sample_type}_samples']) > 0:
-                start_idx = pd.DataFrame(manifests[phrase]['train'][f'{sample_type}_samples'])['file'].map(lambda x: int(x.split('/')[-1].split('_')[0])).max() + 1
-            else:
-                start_idx = 0
-            train.rename(columns={'text': 'phrase'}, inplace=True)            
-            train.insert(0, 'file', [os.path.join(path, f'{(start_idx + i):04d}_{re.sub(r' +', '_', re.sub(r' - .*', '', voice)).strip('_')}.wav') for i, voice in enumerate(train['voice'].to_list())])
-            train.insert(1, 'label', int(sample_type == 'positive'))
-            train.apply(lambda row: move_from_zip(zip_objects[row['zip_path']], row['src_dir_path'], row['file']), axis=1)
-            train.drop(columns=['zip_path', 'src_dir_path'], inplace=True)
-            manifests[phrase]['train'][f'{sample_type}_samples'].extend(train.to_dict(orient='records'))
-            print(phrase, sample_type, 'train', len(train))
-        
-            test = group.drop(index=train.index).get(['text', 'augmented', 'voice', 'zip_path', 'src_dir_path']).copy()
+        train = group.sample(frac=args.split_factor, replace=False).get(['text', 'augmented', 'voice', 'zip_path', 'src_dir_path']).copy()
+        path = os.path.join(data_dir, phrase, 'train', sample_type)
+        os.makedirs(path, exist_ok=True)
+        if len(manifests[phrase]['train'][f'{sample_type}_samples']) > 0:
+            start_idx = pd.DataFrame(manifests[phrase]['train'][f'{sample_type}_samples'])['file'].map(lambda x: int(x.split('/')[-1].split('_')[0])).max() + 1
         else:
-            test = group.get(['text', 'augmented', 'voice', 'zip_path', 'src_dir_path']).copy()
+            start_idx = 0
+        train.rename(columns={'text': 'phrase'}, inplace=True)            
+        train.insert(0, 'file', [os.path.join(path, f'{(start_idx + i):04d}_{re.sub(r' +', '_', re.sub(r' - .*', '', voice)).strip('_')}.wav') for i, voice in enumerate(train['voice'].to_list())])
+        train.insert(1, 'label', int(sample_type == 'positive'))
+        train.apply(lambda row: move_from_zip(zip_objects[row['zip_path']], row['src_dir_path'], row['file']), axis=1)
+        train.drop(columns=['zip_path', 'src_dir_path'], inplace=True)
+        manifests[phrase]['train'][f'{sample_type}_samples'].extend(train.to_dict(orient='records'))
+        print(phrase, sample_type, 'train', len(train))
+        
+        test = group.drop(index=train.index).get(['text', 'augmented', 'voice', 'zip_path', 'src_dir_path']).copy()
         path = os.path.join(data_dir, phrase, 'test', sample_type)
         os.makedirs(path, exist_ok=True)
         if len(manifests[phrase]['test'][f'{sample_type}_samples']) > 0:
